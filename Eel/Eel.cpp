@@ -20,6 +20,7 @@ void map() {
         }
         cout << endl;
     }
+    cout << "success";
 }
 int main()
 {
