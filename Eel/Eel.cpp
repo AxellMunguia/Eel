@@ -2,29 +2,11 @@
 //
 
 #include <iostream>
+#include "raylib.h"
 using namespace std;
-const int width = 20;
-const int height = 20;
-void map() {
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            if (i == 0 || i == height - 1) {
-                cout << "#";
-            }
-            else if (j == 0 || j == width - 1) {
-                cout << "#";
-            }
-            else {
-                cout << " ";
-            }
-        }
-        cout << endl;
-    }
-    cout << "success";
-}
+
 int main()
 {
-    map();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
