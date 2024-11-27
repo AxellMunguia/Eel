@@ -17,10 +17,22 @@ class Food
 {
 public: 
 	Vector2 position = { 5, 6 };
+	Texture2D texture;
 
+	Food()
+	{
+		Image image = LoadImage("CSE350Graphics/tempFood.png");
+		texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+
+	~Food()
+	{
+		UnloadTexture(texture);
+	}
 	void Draw()
 	{
-		DrawRectangle(position.x * cellSize, position.y * cellSize, cellSize, cellSize, orange);
+		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
 	}
 };
 
