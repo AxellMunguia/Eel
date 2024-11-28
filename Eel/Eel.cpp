@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <raylib.h>
+#include <deque>
 
 using namespace std;
 
@@ -43,6 +44,22 @@ public:
 	}
 };
 
+class Snake
+{
+public:
+	deque<Vector2> body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} }; //a queue that contains cords for snakes body
+
+	void Draw()
+	{
+		for (unsigned int i = 0; i < body.size(); i++) //body.size returns unsigned int length of the queue
+		{
+			int x = body[i].x;
+			int y = body[i].y;
+			DrawRectangle(x * cellSize, y * cellSize, cellSize, cellSize, orange); //x (top left), y (top left), width, height, color
+		}
+	}
+};
+
 int main()
 {
 	cout << "Eel..." << endl;
@@ -50,6 +67,7 @@ int main()
 	SetTargetFPS(60);
 
 	Food food = Food();
+	Snake snake = Snake();
 
 	while (WindowShouldClose() == false)
 	{
@@ -58,6 +76,7 @@ int main()
 		//Drawing
 		ClearBackground(blue);
 		food.Draw();
+		snake.Draw();
 
 		EndDrawing();
 	}
