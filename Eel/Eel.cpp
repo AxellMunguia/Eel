@@ -28,33 +28,57 @@ bool timeChecker(double interval) //you will pass in the time and see if it has 
 		return false; //no, interval has not elapsed
 }
 
+bool FoodInDeque(Vector2 element, deque<Vector2> deque) //will compare food to all eel parts for overlap
+{
+	for (unsigned int i = 0; i < deque.size(); i++) //runs though eel body
+	{
+		if (Vector2Equals(deque[i], element)) //do body and food share coords?
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 class Food
 {
 public: 
 	Vector2 position;
 	Texture2D texture;
 
-	Food()
+	Food(deque<Vector2> eelBody)
 	{
 		Image image = LoadImage("CSE350Graphics/tempFood.png");
 		texture = LoadTextureFromImage(image);
 		UnloadImage(image);
-		position = GenerateRandomPos();
+		position = GenerateRandomPos(eelBody);
 	}
 
 	~Food()
 	{
 		UnloadTexture(texture);
 	}
+
 	void Draw()
 	{
 		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
 	}
-	Vector2 GenerateRandomPos()
+
+	Vector2 RandomCords()
 	{
 		float x = GetRandomValue(0, cellCount - 1);
 		float y = GetRandomValue(0, cellCount - 1);
-		return Vector2{ x, y }; 
+		return Vector2{ x, y };
+	}
+
+	Vector2 GenerateRandomPos(deque<Vector2> eelBody) 
+	{
+		Vector2 position = RandomCords();
+		while (FoodInDeque(position, eelBody)) //checks for overlap in food and eel body
+		{
+			position = RandomCords();
+		}
+		return position;
 	}
 };
 
@@ -63,6 +87,7 @@ class Eel
 public:
 	deque<Vector2> body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} }; //a queue that contains cords for eels body
 	Vector2 direction = { 1, 0 };
+	bool grow = false;
 
 	void Draw()
 	{
@@ -74,9 +99,42 @@ public:
 		}
 	}
 	void Update()
-	{
-		body.pop_back();
+	{	
 		body.push_front(Vector2Add(body[0], direction)); //this will move the eel's head in the direction specified through vector addition
+		if (grow == true) 
+		{
+			grow = false;
+		}
+		else
+		{
+			body.pop_back();
+		}
+	}
+};
+
+class Game 
+{
+public: 
+	Eel eel = Eel();
+	Food food = Food(eel.body);
+
+	void Draw()
+	{
+		food.Draw();
+		eel.Draw();
+	}
+	void Update()
+	{
+		eel.Update();
+		CheckForFood();
+	}
+	void CheckForFood()
+	{
+		if (Vector2Equals(eel.body[0], food.position))
+		{//checks vectors for equality
+			food.position = food.GenerateRandomPos(eel.body); // regenerates food
+			eel.grow = true;
+		}
 	}
 };
 
@@ -86,8 +144,7 @@ int main()
 	InitWindow(cellSize*cellCount, cellSize*cellCount, "Eel");
 	SetTargetFPS(60);
 
-	Food food = Food();
-	Eel eel = Eel();
+	Game game = Game();
 
 	while (WindowShouldClose() == false)
 	{
@@ -95,29 +152,28 @@ int main()
 
 		if (timeChecker(0.2)) //delays game loop
 		{
-			eel.Update();
+			game.Update();
 		}
 
-		if (IsKeyPressed(KEY_W)) //up
+		if (IsKeyPressed(KEY_W) && game.eel.direction.y != 1) //up
 		{
-			eel.direction = { 0, -1 };
+			game.eel.direction = { 0, -1 };
 		}
-		if (IsKeyPressed(KEY_A)) //left
+		if (IsKeyPressed(KEY_A) && game.eel.direction.x != 1) //left
 		{
-			eel.direction = { -1, 0 };
+			game.eel.direction = { -1, 0 };
 		}
-		if (IsKeyPressed(KEY_S)) //down
+		if (IsKeyPressed(KEY_S) && game.eel.direction.y != -1) //down
 		{
-			eel.direction = { 0, 1 };
+			game.eel.direction = { 0, 1 };
 		}
-		if (IsKeyPressed(KEY_D)) //right
+		if (IsKeyPressed(KEY_D) && game.eel.direction.x != -1) //right
 		{
-			eel.direction = { 1, 0 };
+			game.eel.direction = { 1, 0 };
 		}
 		//Drawing
 		ClearBackground(blue);
-		food.Draw();
-		eel.Draw();
+		game.Draw();
 
 		EndDrawing();
 	}
