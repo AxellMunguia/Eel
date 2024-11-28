@@ -4,6 +4,7 @@
 #include <iostream>
 #include <raylib.h>
 #include <deque>
+#include <raymath.h>
 
 using namespace std;
 
@@ -13,6 +14,19 @@ Color orange = { 255, 165, 0, 255 };
 
 int cellSize = 30;
 int cellCount = 25;
+
+double startTime = 0;
+
+bool timeChecker(double interval) //you will pass in the time and see if it has elapsed
+{
+	double currentTime = GetTime();
+	if (currentTime - startTime >= interval)
+	{
+		startTime = currentTime;
+		return true; //yes, interval has elapsed
+	}
+		return false; //no, interval has not elapsed
+}
 
 class Food
 {
@@ -44,10 +58,11 @@ public:
 	}
 };
 
-class Snake
+class Eel
 {
 public:
-	deque<Vector2> body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} }; //a queue that contains cords for snakes body
+	deque<Vector2> body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} }; //a queue that contains cords for eels body
+	Vector2 direction = { 1, 0 };
 
 	void Draw()
 	{
@@ -58,6 +73,11 @@ public:
 			DrawRectangle(x * cellSize, y * cellSize, cellSize, cellSize, orange); //x (top left), y (top left), width, height, color
 		}
 	}
+	void Update()
+	{
+		body.pop_back();
+		body.push_front(Vector2Add(body[0], direction)); //this will move the eel's head in the direction specified through vector addition
+	}
 };
 
 int main()
@@ -67,16 +87,37 @@ int main()
 	SetTargetFPS(60);
 
 	Food food = Food();
-	Snake snake = Snake();
+	Eel eel = Eel();
 
 	while (WindowShouldClose() == false)
 	{
 		BeginDrawing();
 
+		if (timeChecker(0.2)) //delays game loop
+		{
+			eel.Update();
+		}
+
+		if (IsKeyPressed(KEY_W)) //up
+		{
+			eel.direction = { 0, -1 };
+		}
+		if (IsKeyPressed(KEY_A)) //left
+		{
+			eel.direction = { -1, 0 };
+		}
+		if (IsKeyPressed(KEY_S)) //down
+		{
+			eel.direction = { 0, 1 };
+		}
+		if (IsKeyPressed(KEY_D)) //right
+		{
+			eel.direction = { 1, 0 };
+		}
 		//Drawing
 		ClearBackground(blue);
 		food.Draw();
-		snake.Draw();
+		eel.Draw();
 
 		EndDrawing();
 	}
