@@ -110,6 +110,11 @@ public:
 			body.pop_back();
 		}
 	}
+	void ResetEel()
+	{
+		body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} };
+		direction = { 1, 0 };
+	}
 };
 
 class Game 
@@ -117,6 +122,7 @@ class Game
 public: 
 	Eel eel = Eel();
 	Food food = Food(eel.body);
+	bool ActiveGame = true;
 
 	void Draw()
 	{
@@ -125,8 +131,13 @@ public:
 	}
 	void Update()
 	{
-		eel.Update();
-		CheckForFood();
+		if (ActiveGame)
+		{
+			eel.Update();
+			CheckForFood();
+			CheckForWallCollision();
+			CheckForCanibalism();
+		}
 	}
 	void CheckForFood()
 	{
@@ -135,6 +146,31 @@ public:
 			food.position = food.GenerateRandomPos(eel.body); // regenerates food
 			eel.grow = true;
 		}
+	}
+	void CheckForWallCollision() {
+		if (eel.body[0].x == cellCount || eel.body[0].x == -1) //checks for crash on x axis
+		{
+			GameOver();
+		}
+		if (eel.body[0].y == cellCount || eel.body[0].y == -1)
+		{
+			GameOver();
+		}
+	}
+	void CheckForCanibalism()
+	{
+		deque<Vector2> headlessBody = eel.body; //copy body, than remove head
+		headlessBody.pop_front();
+		if (FoodInDeque(eel.body[0], headlessBody))
+		{
+			GameOver();
+		}
+	}
+	void GameOver()
+	{
+		eel.ResetEel(); //moves snake body to center again
+		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
+		ActiveGame = false;
 	}
 };
 
@@ -158,18 +194,22 @@ int main()
 		if (IsKeyPressed(KEY_W) && game.eel.direction.y != 1) //up
 		{
 			game.eel.direction = { 0, -1 };
+			game.ActiveGame = true;
 		}
 		if (IsKeyPressed(KEY_A) && game.eel.direction.x != 1) //left
 		{
 			game.eel.direction = { -1, 0 };
+			game.ActiveGame = true;
 		}
 		if (IsKeyPressed(KEY_S) && game.eel.direction.y != -1) //down
 		{
 			game.eel.direction = { 0, 1 };
+			game.ActiveGame = true;
 		}
 		if (IsKeyPressed(KEY_D) && game.eel.direction.x != -1) //right
 		{
 			game.eel.direction = { 1, 0 };
+			game.ActiveGame = true;
 		}
 		//Drawing
 		ClearBackground(blue);
