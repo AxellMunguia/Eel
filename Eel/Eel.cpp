@@ -85,7 +85,7 @@ public:
 class Eel
 {
 public:
-	deque<Vector2> body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} }; //a queue that contains cords for eels body
+	deque<Vector2> body = { Vector2{float(cellCount/2), float(cellCount / 2)} }; //a queue that contains cords for eels body
 	Vector2 direction = { 1, 0 };
 	bool grow = false;
 
@@ -112,7 +112,7 @@ public:
 	}
 	void ResetEel()
 	{
-		body = { Vector2{6, 9}, Vector2{5, 9}, Vector2{4, 9} };
+		body = { Vector2{float(cellCount / 2), float(cellCount / 2)} };
 		direction = { 1, 0 };
 	}
 };
@@ -122,7 +122,7 @@ class Game
 public: 
 	Eel eel = Eel();
 	Food food = Food(eel.body);
-	bool ActiveGame = true;
+	bool ActiveGame = false; //changed to false so there is not immediate start to game
 
 	void Draw()
 	{
@@ -185,7 +185,7 @@ int main()
 	while (WindowShouldClose() == false)
 	{
 		BeginDrawing();
-
+		// add code that if any key is clicked game starts instead of just wasd
 		if (timeChecker(0.2)) //delays game loop
 		{
 			game.Update();
