@@ -11,6 +11,7 @@ using namespace std;
 Color blue = { 0, 142, 148, 255 };
 Color brownishYellow = { 150, 120, 0, 255 };
 Color orange = { 255, 165, 0, 255 };
+Color green = { 0, 255, 0, 255 };
 
 int cellSize = 30;
 int cellCount = 25;
@@ -48,7 +49,7 @@ public:
 
 	Food(deque<Vector2> eelBody)
 	{
-		Image image = LoadImage("CSE350Graphics/tempFood.png");
+		Image image = LoadImage("CSE350Graphics/fish.png");
 		texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 		position = GenerateRandomPos(eelBody);
@@ -95,7 +96,7 @@ public:
 		{
 			int x = body[i].x;
 			int y = body[i].y;
-			DrawRectangle(x * cellSize, y * cellSize, cellSize, cellSize, orange); //x (top left), y (top left), width, height, color
+			DrawRectangle(x * cellSize, y * cellSize, cellSize, cellSize, green); //x (top left), y (top left), width, height, color
 		}
 	}
 	void Update()
