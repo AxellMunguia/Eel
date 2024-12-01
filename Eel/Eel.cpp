@@ -29,7 +29,7 @@ bool timeChecker(double interval) //you will pass in the time and see if it has 
 		return false; //no, interval has not elapsed
 }
 
-bool FoodInDeque(Vector2 element, deque<Vector2> deque) //will compare food to all eel parts for overlap
+bool ElementInDeque(Vector2 element, deque<Vector2> deque) //will compare food to all eel parts for overlap
 {
 	for (unsigned int i = 0; i < deque.size(); i++) //runs though eel body
 	{
@@ -40,6 +40,48 @@ bool FoodInDeque(Vector2 element, deque<Vector2> deque) //will compare food to a
 	}
 	return false;
 }
+
+class Bomb 
+{
+public: 
+	Vector2 position;
+	Texture2D texture;
+
+	Bomb(deque <Vector2> eelBody)
+	{
+		Image image = LoadImage("CSE350Graphics/frog.png");
+		texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+		position = GenerateRandomPos(eelBody);
+	}
+
+	~Bomb()
+	{
+		UnloadTexture(texture);
+	}
+	
+	void Draw()
+	{
+		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
+	}
+
+	Vector2 RandomCords()
+	{
+		float x = GetRandomValue(0, cellCount - 1);
+		float y = GetRandomValue(0, cellCount - 1);
+		return Vector2{ x, y };
+	}
+
+	Vector2 GenerateRandomPos(deque<Vector2> eelBody)
+	{
+		Vector2 position = RandomCords();
+		while (ElementInDeque(position, eelBody)) //checks for overlap in food and eel body
+		{
+			position = RandomCords();
+		}
+		return position;
+	}
+};
 
 class Food
 {
@@ -75,7 +117,7 @@ public:
 	Vector2 GenerateRandomPos(deque<Vector2> eelBody) 
 	{
 		Vector2 position = RandomCords();
-		while (FoodInDeque(position, eelBody)) //checks for overlap in food and eel body
+		while (ElementInDeque(position, eelBody)) //checks for overlap in food and eel body
 		{
 			position = RandomCords();
 		}
@@ -123,12 +165,15 @@ class Game
 public: 
 	Eel eel = Eel();
 	Food food = Food(eel.body);
+	Bomb bomb = Bomb(eel.body);
+
 	bool ActiveGame = false; //changed to false so there is not immediate start to game
 
 	void Draw()
 	{
 		food.Draw();
 		eel.Draw();
+		bomb.Draw();
 	}
 	void Update()
 	{
@@ -138,6 +183,7 @@ public:
 			CheckForFood();
 			CheckForWallCollision();
 			CheckForCanibalism();
+			CheckForBombCollison();
 		}
 	}
 	void CheckForFood()
@@ -162,7 +208,7 @@ public:
 	{
 		deque<Vector2> headlessBody = eel.body; //copy body, than remove head
 		headlessBody.pop_front();
-		if (FoodInDeque(eel.body[0], headlessBody))
+		if (ElementInDeque(eel.body[0], headlessBody))
 		{
 			GameOver();
 		}
@@ -172,6 +218,14 @@ public:
 		eel.ResetEel(); //moves snake body to center again
 		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
 		ActiveGame = false;
+	}
+	void CheckForBombCollison()
+	{
+		if (Vector2Equals(eel.body[0], bomb.position))
+		{	
+			bomb.position = bomb.GenerateRandomPos(eel.body); // regenerates food
+			GameOver();
+		}
 	}
 };
 
