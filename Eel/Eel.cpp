@@ -17,6 +17,7 @@ int cellSize = 30;
 int cellCount = 25;
 
 double startTime = 0;
+double startBombTime = 0;
 
 bool timeChecker(double interval) //you will pass in the time and see if it has elapsed
 {
@@ -27,6 +28,16 @@ bool timeChecker(double interval) //you will pass in the time and see if it has 
 		return true; //yes, interval has elapsed
 	}
 		return false; //no, interval has not elapsed
+}
+bool bombClock(double interval)
+{
+	double currentTime = GetTime();
+	if (currentTime - startBombTime >= interval)
+	{
+		startBombTime = currentTime;
+		return true; //yes, interval has elapsed
+	}
+	return false; //no, interval has not elapsed
 }
 
 bool ElementInDeque(Vector2 element, deque<Vector2> deque) //will compare food to all eel parts for overlap
@@ -168,12 +179,16 @@ public:
 	Bomb bomb = Bomb(eel.body);
 
 	bool ActiveGame = false; //changed to false so there is not immediate start to game
+	bool DrawBomb = false;
 
 	void Draw()
 	{
 		food.Draw();
 		eel.Draw();
-		bomb.Draw();
+		if (DrawBomb)
+		{
+			bomb.Draw();
+		}
 	}
 	void Update()
 	{
@@ -217,13 +232,15 @@ public:
 	{
 		eel.ResetEel(); //moves snake body to center again
 		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
-		ActiveGame = false;
+		bomb.position = bomb.GenerateRandomPos(eel.body); // regenerates bomb
+		ActiveGame = false; //pause game till start
+		DrawBomb = false; //doesnt generate bomb
+		startBombTime = 0;
 	}
 	void CheckForBombCollison()
 	{
 		if (Vector2Equals(eel.body[0], bomb.position))
 		{	
-			bomb.position = bomb.GenerateRandomPos(eel.body); // regenerates food
 			GameOver();
 		}
 	}
@@ -241,11 +258,31 @@ int main()
 	{
 		BeginDrawing();
 		// add code that if any key is clicked game starts instead of just wasd
+		if (game.ActiveGame) // if game is running start timer for bomb, 
+		{
+			if (bombClock(10))
+			{
+				if (game.DrawBomb == false) 
+				{
+					game.DrawBomb = true;
+					//cout << "10 secs has elapsed, eel should be drawn" << endl;
+					if (Vector2Equals(game.bomb.position, { -1, -1 }))
+					{
+						game.bomb.position = game.bomb.GenerateRandomPos(game.eel.body);
+					}
+				}
+				else if (game.DrawBomb == true)
+				{
+					game.DrawBomb = false;
+					game.bomb.position = { -1, -1 }; //moves bomb off map
+					//cout << "10 secs has elapsed, eel should not be drawn" << endl;
+				}
+			}
+		}
 		if (timeChecker(0.2)) //delays game loop
 		{
 			game.Update();
 		}
-
 		if (IsKeyPressed(KEY_W) && game.eel.direction.y != 1) //up
 		{
 			game.eel.direction = { 0, -1 };
