@@ -18,6 +18,8 @@ int cellCount = 25;
 
 double startTime = 0;
 double startBombTime = 0;
+double startFrogTime = 0;
+double startCoinTime = 0;
 
 bool timeChecker(double interval) //you will pass in the time and see if it has elapsed
 {
@@ -38,6 +40,26 @@ bool bombClock(double interval)
 		return true; //yes, interval has elapsed
 	}
 	return false; //no, interval has not elapsed
+}
+bool frogClock(double interval)
+{
+	double currentTime = GetTime();
+	if (currentTime - startFrogTime >= interval)
+	{
+		startFrogTime = currentTime;
+		return true; //yes, interval has elapsed
+	}
+	return false; //no, interval has not elapsed
+}
+bool coinClock(double interval)
+{
+	double currentTime = GetTime();
+	if (currentTime - startCoinTime >= interval)
+	{
+		startCoinTime = currentTime;
+		return true; //yes, interval has elapsed
+	}
+	return false; // no, interval has not elapsed
 }
 
 bool ElementInDeque(Vector2 element, deque<Vector2> deque) //will compare food to all eel parts for overlap
@@ -60,7 +82,7 @@ public:
 
 	Bomb(deque <Vector2> eelBody)
 	{
-		Image image = LoadImage("CSE350Graphics/frog.png");
+		Image image = LoadImage("CSE350Graphics/bomb.png");
 		texture = LoadTextureFromImage(image);
 		UnloadImage(image);
 		position = GenerateRandomPos(eelBody);
@@ -136,6 +158,90 @@ public:
 	}
 };
 
+class FrogFood
+{
+public:
+	Vector2 position;
+	Texture2D texture;
+
+	FrogFood(deque <Vector2> eelBody)
+	{
+		Image image = LoadImage("CSE350Graphics/frog.png");
+		texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+		position = GenerateRandomPos(eelBody);
+	}
+
+	~FrogFood()
+	{
+		UnloadTexture(texture);
+	}
+
+	void Draw()
+	{
+		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE);
+	}
+
+	Vector2 RandomCords()
+	{
+		float x = GetRandomValue(0, cellCount - 1);
+		float y = GetRandomValue(0, cellCount - 1);
+		return Vector2{ x, y };
+	}
+
+	Vector2 GenerateRandomPos(deque<Vector2> eelBody)
+	{
+		Vector2 position = RandomCords();
+		while (ElementInDeque(position, eelBody))
+		{
+			position = RandomCords();
+		}
+		return position;
+	}
+};
+
+class Coin
+{
+public:
+	Vector2 position;
+	Texture2D texture;
+
+	Coin(deque <Vector2> eelBody)
+	{
+		Image image = LoadImage("CSE350Graphics/coin.png");
+		texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+		position = GenerateRandomPos(eelBody);
+	}
+
+	~Coin()
+	{
+		UnloadTexture(texture);
+	}
+
+	void Draw()
+	{
+		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE);
+	}
+
+	Vector2 RandomCords()
+	{
+		float x = GetRandomValue(0, cellCount - 1);
+		float y = GetRandomValue(0, cellCount - 1);
+		return Vector2{ x, y };
+	}
+
+	Vector2 GenerateRandomPos(deque<Vector2> eelBody)
+	{
+		Vector2 position = RandomCords();
+		while (ElementInDeque(position, eelBody))
+		{
+			position = RandomCords();
+		}
+		return position;
+	}
+};
+
 class Eel
 {
 public:
@@ -177,9 +283,13 @@ public:
 	Eel eel = Eel();
 	Food food = Food(eel.body);
 	Bomb bomb = Bomb(eel.body);
+	FrogFood frog = FrogFood(eel.body);
+	Coin coin = Coin(eel.body);
 
 	bool ActiveGame = false; //changed to false so there is not immediate start to game
 	bool DrawBomb = false;
+	bool DrawFrogFood = false;
+	bool DrawCoin = false;
 
 	void Draw()
 	{
@@ -188,6 +298,14 @@ public:
 		if (DrawBomb)
 		{
 			bomb.Draw();
+		}
+		if (DrawFrogFood)
+		{
+			frog.Draw();
+		}
+		if (DrawCoin)
+		{
+			coin.Draw();
 		}
 	}
 	void Update()
@@ -206,6 +324,19 @@ public:
 		if (Vector2Equals(eel.body[0], food.position))
 		{//checks vectors for equality
 			food.position = food.GenerateRandomPos(eel.body); // regenerates food
+			eel.grow = true;
+		}
+
+		if (Vector2Equals(eel.body[0], frog.position))
+		{
+			frog.position = { -1, -1 };
+			eel.grow = true;
+
+		}
+
+		if (Vector2Equals(eel.body[0], coin.position))
+		{
+			coin.position = { -1, -1 };
 			eel.grow = true;
 		}
 	}
@@ -233,6 +364,8 @@ public:
 		eel.ResetEel(); //moves snake body to center again
 		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
 		bomb.position = { -1, -1 }; // regenerates bomb
+		frog.position = { -1, -1 };
+		coin.position = { -1, -1 };
 		ActiveGame = false; //pause game till start
 
 	}
@@ -275,6 +408,40 @@ int main()
 					game.DrawBomb = false;
 					game.bomb.position = { -1, -1 }; //moves bomb off map
 					//cout << "10 secs has elapsed, eel should not be drawn" << endl;
+				}
+			}
+
+			if (frogClock(15))
+			{
+				if (game.DrawFrogFood == false)
+				{
+					game.DrawFrogFood = true;
+					if (Vector2Equals(game.frog.position, { -1, -1 }))
+					{
+						game.frog.position = game.frog.GenerateRandomPos(game.eel.body);
+					}
+				}
+				else if (game.DrawFrogFood == true)
+				{
+					game.DrawFrogFood = false;
+					game.frog.position = { -1, -1 }; // moves frog off map
+				}
+			}
+
+			if (coinClock(5))
+			{
+				if (game.DrawCoin == false)
+				{
+					game.DrawCoin = true;
+					if (Vector2Equals(game.coin.position, { -1, -1 }))
+					{
+						game.coin.position = game.coin.GenerateRandomPos(game.eel.body);
+					}
+				}
+				else if (game.DrawCoin == true)
+				{
+					game.DrawCoin = false;
+					game.coin.position = { -1, -1 }; // moves coin off map
 				}
 			}
 		}
