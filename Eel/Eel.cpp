@@ -15,6 +15,7 @@ Color green = { 0, 255, 0, 255 };
 
 int cellSize = 30;
 int cellCount = 25;
+int offset = 75;
 
 double startTime = 0;
 double startBombTime = 0;
@@ -95,7 +96,7 @@ public:
 	
 	void Draw()
 	{
-		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
+		DrawTexture(texture, offset + position.x * cellSize, offset + position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
 	}
 
 	Vector2 RandomCords()
@@ -137,7 +138,7 @@ public:
 
 	void Draw()
 	{
-		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
+		DrawTexture(texture, offset + position.x * cellSize, offset + position.y * cellSize, WHITE); //texture, x (top left), y (top left), tint
 	}
 
 	Vector2 RandomCords()
@@ -179,7 +180,7 @@ public:
 
 	void Draw()
 	{
-		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE);
+		DrawTexture(texture, offset + position.x * cellSize, offset + position.y * cellSize, WHITE);
 	}
 
 	Vector2 RandomCords()
@@ -221,7 +222,7 @@ public:
 
 	void Draw()
 	{
-		DrawTexture(texture, position.x * cellSize, position.y * cellSize, WHITE);
+		DrawTexture(texture, offset + position.x * cellSize, offset + position.y * cellSize, WHITE);
 	}
 
 	Vector2 RandomCords()
@@ -255,7 +256,7 @@ public:
 		{
 			int x = body[i].x;
 			int y = body[i].y;
-			DrawRectangle(x * cellSize, y * cellSize, cellSize, cellSize, green); //x (top left), y (top left), width, height, color
+			DrawRectangle(offset + x * cellSize, offset + y * cellSize, cellSize, cellSize, green); //x (top left), y (top left), width, height, color
 		}
 	}
 	void Update()
@@ -291,6 +292,8 @@ public:
 	bool DrawFrogFood = false;
 	bool DrawCoin = false;
 
+	int score = 0;
+
 	void Draw()
 	{
 		food.Draw();
@@ -325,6 +328,7 @@ public:
 		{//checks vectors for equality
 			food.position = food.GenerateRandomPos(eel.body); // regenerates food
 			eel.grow = true;
+			score++;
 		}
 
 		if (Vector2Equals(eel.body[0], frog.position))
@@ -367,6 +371,7 @@ public:
 		frog.position = { -1, -1 };
 		coin.position = { -1, -1 };
 		ActiveGame = false; //pause game till start
+		score = 0;
 
 	}
 	void CheckForBombCollison()
@@ -382,7 +387,7 @@ public:
 		{
 			for (int j = 0; j < cellCount; j++)
 			{
-				DrawRectangleLines(i * cellSize, j * cellSize, cellSize, cellSize, WHITE);
+				DrawRectangleLines(offset + i * cellSize, offset + j * cellSize, cellSize, cellSize, WHITE);
 			}
 		}
 	}
@@ -391,7 +396,7 @@ public:
 int main()
 {
 	cout << "Eel..." << endl;
-	InitWindow(cellSize*cellCount, cellSize*cellCount, "Eel");
+	InitWindow(cellSize * cellCount + 2 * offset, cellSize * cellCount + 2 * offset, "Eel");
 	SetTargetFPS(60);
 
 	Game game = Game();
@@ -481,6 +486,9 @@ int main()
 		}
 		//Drawing
 		ClearBackground(blue);
+		DrawRectangleLinesEx(Rectangle{ (float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 10, (float)cellSize * cellCount + 10 }, 5, WHITE);
+		DrawText("Eel: A Reimgination of Snake", offset - 5, 20, 40, WHITE); //text, x, y, font size, color
+		DrawText(TextFormat("%i", game.score), offset - 5, offset + cellSize * cellCount + 10, 30, WHITE);
 		game.DrawGrid();
 		game.Draw();
 		EndDrawing();
