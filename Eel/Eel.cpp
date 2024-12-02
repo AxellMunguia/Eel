@@ -232,10 +232,9 @@ public:
 	{
 		eel.ResetEel(); //moves snake body to center again
 		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
-		bomb.position = bomb.GenerateRandomPos(eel.body); // regenerates bomb
+		bomb.position = { -1, -1 }; // regenerates bomb
 		ActiveGame = false; //pause game till start
-		DrawBomb = false; //doesnt generate bomb
-		startBombTime = 0;
+
 	}
 	void CheckForBombCollison()
 	{
