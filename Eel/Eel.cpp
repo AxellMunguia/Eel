@@ -376,6 +376,16 @@ public:
 			GameOver();
 		}
 	}
+	void DrawGrid()
+	{
+		for (int i = 0; i < cellCount; i++)
+		{
+			for (int j = 0; j < cellCount; j++)
+			{
+				DrawRectangleLines(i * cellSize, j * cellSize, cellSize, cellSize, WHITE);
+			}
+		}
+	}
 };
 
 int main()
@@ -471,8 +481,8 @@ int main()
 		}
 		//Drawing
 		ClearBackground(blue);
+		game.DrawGrid();
 		game.Draw();
-
 		EndDrawing();
 	}
 
