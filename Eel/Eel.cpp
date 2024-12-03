@@ -250,13 +250,29 @@ public:
 	Vector2 direction = { 1, 0 };
 	bool grow = false;
 
+	Vector2 position;
+	Texture2D texture;
+
+	Eel()
+	{
+		Image image = LoadImage("CSE350Graphics/eelBody.png");
+		texture = LoadTextureFromImage(image);
+		UnloadImage(image);
+	}
+
+	~Eel()
+	{
+		UnloadTexture(texture);
+	}
+
 	void Draw()
 	{
 		for (unsigned int i = 0; i < body.size(); i++) //body.size returns unsigned int length of the queue
 		{
 			int x = body[i].x;
 			int y = body[i].y;
-			DrawRectangle(offset + x * cellSize, offset + y * cellSize, cellSize, cellSize, green); //x (top left), y (top left), width, height, color
+			DrawTexture(texture, offset + x * cellSize, offset + y * cellSize, WHITE);
+			//DrawRectangle(offset + x * cellSize, offset + y * cellSize, cellSize, cellSize, green); //x (top left), y (top left), width, height, color
 		}
 	}
 	void Update()
