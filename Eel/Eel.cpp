@@ -410,6 +410,98 @@ public:
 			}
 		}
 	}
+
+	void UserInput()
+	{
+		if (IsKeyPressed(KEY_W) && eel.direction.y != 1) //up
+		{
+			eel.direction = { 0, -1 };
+			ActiveGame = true;
+		}
+		if (IsKeyPressed(KEY_A) && eel.direction.x != 1) //left
+		{
+			eel.direction = { -1, 0 };
+			ActiveGame = true;
+		}
+		if (IsKeyPressed(KEY_S) && eel.direction.y != -1) //down
+		{
+			eel.direction = { 0, 1 };
+			ActiveGame = true;
+		}
+		if (IsKeyPressed(KEY_D) && eel.direction.x != -1) //right
+		{
+			eel.direction = { 1, 0 };
+			ActiveGame = true;
+		}
+	}
+	void SetClocks()
+	{
+		if (ActiveGame) // if game is running start timer for bomb, 
+		{
+			if (bombClock(10))
+			{
+				if (DrawBomb == false)
+				{
+					DrawBomb = true;
+					//cout << "10 secs has elapsed, eel should be drawn" << endl;
+					if (Vector2Equals(bomb.position, { -1, -1 }))
+					{
+						bomb.position = bomb.GenerateRandomPos(eel.body);
+					}
+				}
+				else if (DrawBomb == true)
+				{
+					DrawBomb = false;
+					bomb.position = { -1, -1 }; //moves bomb off map
+					//cout << "10 secs has elapsed, eel should not be drawn" << endl;
+				}
+			}
+
+			if (frogClock(15))
+			{
+				if (DrawFrogFood == false)
+				{
+					DrawFrogFood = true;
+					if (Vector2Equals(frog.position, { -1, -1 }))
+					{
+						frog.position = frog.GenerateRandomPos(eel.body);
+					}
+				}
+				else if (DrawFrogFood == true)
+				{
+					DrawFrogFood = false;
+					frog.position = { -1, -1 }; // moves frog off map
+				}
+			}
+
+			if (coinClock(5))
+			{
+				if (DrawCoin == false)
+				{
+					DrawCoin = true;
+					if (Vector2Equals(coin.position, { -1, -1 }))
+					{
+						coin.position = coin.GenerateRandomPos(eel.body);
+					}
+				}
+				else if (DrawCoin == true)
+				{
+					DrawCoin = false;
+					coin.position = { -1, -1 }; // moves coin off map
+				}
+			}
+		}
+	}
+	void DrawGameScreen()
+	{
+		ClearBackground(gray);
+		DrawRectangleLinesEx(Rectangle{ (float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 10, (float)cellSize * cellCount + 10 }, 5, WHITE);
+		DrawRectangleGradientV(offset, offset, cellSize * cellCount, cellSize * cellCount, LIGHTGRAY, SKYBLUE);   // Draw a vertical-gradient-filled rectangle
+		DrawText("Eel: A Reimgination of Snake", offset - 5, 20, 40, WHITE); //text, x, y, font size, color
+		DrawText(TextFormat("%i", score), offset - 5, offset + cellSize * cellCount + 10, 30, WHITE);
+		DrawGrid();
+		Draw();
+	}
 };
 
 int main()
@@ -423,94 +515,18 @@ int main()
 	while (WindowShouldClose() == false)
 	{
 		BeginDrawing();
-		// add code that if any key is clicked game starts instead of just wasd
-		if (game.ActiveGame) // if game is running start timer for bomb, 
-		{
-			if (bombClock(10))
-			{
-				if (game.DrawBomb == false) 
-				{
-					game.DrawBomb = true;
-					//cout << "10 secs has elapsed, eel should be drawn" << endl;
-					if (Vector2Equals(game.bomb.position, { -1, -1 }))
-					{
-						game.bomb.position = game.bomb.GenerateRandomPos(game.eel.body);
-					}
-				}
-				else if (game.DrawBomb == true)
-				{
-					game.DrawBomb = false;
-					game.bomb.position = { -1, -1 }; //moves bomb off map
-					//cout << "10 secs has elapsed, eel should not be drawn" << endl;
-				}
-			}
+		
+		game.SetClocks(); //sets the timers for the food, frog, bomb, coin
 
-			if (frogClock(15))
-			{
-				if (game.DrawFrogFood == false)
-				{
-					game.DrawFrogFood = true;
-					if (Vector2Equals(game.frog.position, { -1, -1 }))
-					{
-						game.frog.position = game.frog.GenerateRandomPos(game.eel.body);
-					}
-				}
-				else if (game.DrawFrogFood == true)
-				{
-					game.DrawFrogFood = false;
-					game.frog.position = { -1, -1 }; // moves frog off map
-				}
-			}
+		if (timeChecker(0.2)) //delays game loop to slowdown eel
+		{
+			game.Update(); //updates location for eel, size
+		}
 
-			if (coinClock(5))
-			{
-				if (game.DrawCoin == false)
-				{
-					game.DrawCoin = true;
-					if (Vector2Equals(game.coin.position, { -1, -1 }))
-					{
-						game.coin.position = game.coin.GenerateRandomPos(game.eel.body);
-					}
-				}
-				else if (game.DrawCoin == true)
-				{
-					game.DrawCoin = false;
-					game.coin.position = { -1, -1 }; // moves coin off map
-				}
-			}
-		}
-		if (timeChecker(0.2)) //delays game loop
-		{
-			game.Update();
-		}
-		if (IsKeyPressed(KEY_W) && game.eel.direction.y != 1) //up
-		{
-			game.eel.direction = { 0, -1 };
-			game.ActiveGame = true;
-		}
-		if (IsKeyPressed(KEY_A) && game.eel.direction.x != 1) //left
-		{
-			game.eel.direction = { -1, 0 };
-			game.ActiveGame = true;
-		}
-		if (IsKeyPressed(KEY_S) && game.eel.direction.y != -1) //down
-		{
-			game.eel.direction = { 0, 1 };
-			game.ActiveGame = true;
-		}
-		if (IsKeyPressed(KEY_D) && game.eel.direction.x != -1) //right
-		{
-			game.eel.direction = { 1, 0 };
-			game.ActiveGame = true;
-		}
-		//Drawing
-		ClearBackground(gray);
-		DrawRectangleLinesEx(Rectangle{ (float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 10, (float)cellSize * cellCount + 10 }, 5, WHITE);
-		DrawRectangleGradientV(offset, offset, cellSize * cellCount, cellSize * cellCount, LIGHTGRAY, SKYBLUE);   // Draw a vertical-gradient-filled rectangle
-		DrawText("Eel: A Reimgination of Snake", offset - 5, 20, 40, WHITE); //text, x, y, font size, color
-		DrawText(TextFormat("%i", game.score), offset - 5, offset + cellSize * cellCount + 10, 30, WHITE);
-		game.DrawGrid();
-		game.Draw();
+		game.UserInput(); //checks the wasd inputs for direction and to start the game
+		
+		game.DrawGameScreen(); //draws the game board, scoreboard
+		
 		EndDrawing();
 	}
 
