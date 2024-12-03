@@ -333,15 +333,16 @@ public:
 
 		if (Vector2Equals(eel.body[0], frog.position))
 		{
-			frog.position = { -1, -1 };
+			frog.position = { -10, -10 };
 			eel.grow = true;
+			score = score + 2;
 
 		}
 
 		if (Vector2Equals(eel.body[0], coin.position))
 		{
-			coin.position = { -1, -1 };
-			eel.grow = true;
+			coin.position = { -10, -10 };
+			score = score + 5;
 		}
 	}
 	void CheckForWallCollision() {
@@ -381,6 +382,7 @@ public:
 			GameOver();
 		}
 	}
+	
 	void DrawGrid()
 	{
 		for (int i = 0; i < cellCount; i++)
