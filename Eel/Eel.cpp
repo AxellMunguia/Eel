@@ -12,6 +12,7 @@ Color blue = { 0, 142, 148, 255 };
 Color brownishYellow = { 150, 120, 0, 255 };
 Color orange = { 255, 165, 0, 255 };
 Color green = { 0, 255, 0, 255 };
+Color gray = { 127, 127, 127, 255 };
 
 int cellSize = 30;
 int cellCount = 25;
@@ -503,8 +504,9 @@ int main()
 			game.ActiveGame = true;
 		}
 		//Drawing
-		ClearBackground(blue);
+		ClearBackground(gray);
 		DrawRectangleLinesEx(Rectangle{ (float)offset - 5, (float)offset - 5, (float)cellSize * cellCount + 10, (float)cellSize * cellCount + 10 }, 5, WHITE);
+		DrawRectangleGradientV(offset, offset, cellSize * cellCount, cellSize * cellCount, LIGHTGRAY, SKYBLUE);   // Draw a vertical-gradient-filled rectangle
 		DrawText("Eel: A Reimgination of Snake", offset - 5, 20, 40, WHITE); //text, x, y, font size, color
 		DrawText(TextFormat("%i", game.score), offset - 5, offset + cellSize * cellCount + 10, 30, WHITE);
 		game.DrawGrid();
