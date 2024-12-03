@@ -368,9 +368,9 @@ public:
 	{
 		eel.ResetEel(); //moves snake body to center again
 		food.position = food.GenerateRandomPos(eel.body); //resets food location, sends in body to make sure no overlap
-		bomb.position = { -1, -1 }; // regenerates bomb
-		frog.position = { -1, -1 };
-		coin.position = { -1, -1 };
+		bomb.position = { -10, -10 }; // regenerates bomb
+		frog.position = { -10, -10 };
+		coin.position = { -10, -10 };
 		ActiveGame = false; //pause game till start
 		score = 0;
 
