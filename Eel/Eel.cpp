@@ -23,6 +23,47 @@ double startBombTime = 0;
 double startFrogTime = 0;
 double startCoinTime = 0;
 
+void showTitleScreen() {
+	InitWindow(800, 600, "Start Screen");
+	SetTargetFPS(60);
+
+	while (!WindowShouldClose()) {
+		BeginDrawing();
+		ClearBackground(GRAY);
+
+		// Center "Embark on Your Coding Journey" text
+		const char* title = "Welcome to Eel";
+		int fontSize = 40;
+		int titleWidth = MeasureText(title, fontSize);
+		int screenWidth = GetScreenWidth();
+		int screenHeight = GetScreenHeight();
+
+		DrawText(title, (screenWidth - titleWidth) / 2, screenHeight / 2 - 100, fontSize, WHITE);
+
+		// Center "Press SPACE to Start" text below the title
+		const char* instruction = "Press SPACE to Start";
+		int instructionWidth = MeasureText(instruction, 20);
+		DrawText(instruction, (screenWidth - instructionWidth) / 2, screenHeight / 2 - 20, 20, YELLOW);
+
+		// Instructions
+		const char* controls = "- Use keys 'A', 'W', 'S', 'D' to move the eel.";
+		const char* avoidBombs = "- Avoid bombs and eat as much as possible.";
+		const char* extraPoints = "- Collect frogs and coins for extra points!";
+
+		DrawText(controls, 50, screenHeight / 2 + 50, 20, LIGHTGRAY);
+		DrawText(avoidBombs, 50, screenHeight / 2 + 80, 20, LIGHTGRAY);
+		DrawText(extraPoints, 50, screenHeight / 2 + 110, 20, LIGHTGRAY);
+
+		EndDrawing();
+
+		if (IsKeyPressed(KEY_SPACE)) {
+			break;
+		}
+	}
+
+	CloseWindow();
+}
+
 bool timeChecker(double interval) //you will pass in the time and see if it has elapsed
 {
 	double currentTime = GetTime();
@@ -506,6 +547,7 @@ public:
 
 int main()
 {
+	showTitleScreen();
 	cout << "Eel..." << endl;
 	InitWindow(cellSize * cellCount + 2 * offset, cellSize * cellCount + 2 * offset, "Eel");
 	SetTargetFPS(60);
